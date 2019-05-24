@@ -12,13 +12,10 @@ import SDWebImage
 import Kanna
 
 class DetailViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    let mCellReuseIdentifier = "detailCell"
-    var titleStr = ""
-    var imageDirURLs = [String]()
-    var pageURLStr = ""
-    var isUpdateImage = false
     
-    typealias parseHandler = (_ response : String) -> Swift.Void
+    lazy var viewModel: PTTBeautyDetailViewModel = {
+        return PTTBeautyDetailViewModel()
+    }()
     
     lazy var nowTapImageView: UIImageView = {
         let nowTapImageView = UIImageView()
@@ -29,7 +26,7 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
     }()
     
     lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.bounds.width, height: self.view.bounds.height))
+        let scrollView = UIScrollView(frame: CGRect(x: 0.0, y: 0.0, width: view.bounds.width, height: view.bounds.height))
         scrollView.backgroundColor = UIColor.black
         scrollView.minimumZoomScale = 1.0
         scrollView.maximumZoomScale = 6.0
@@ -42,13 +39,10 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
     
     lazy var tableview: UITableView = {
         let tableview = UITableView()
-        tableview.register(DetailTableViewCell.self, forCellReuseIdentifier: "DetailTableViewCell")
+        tableview.register(DetailTableViewCell.self, forCellReuseIdentifier: DetailTableViewCell.cellIdentifier())
         tableview.translatesAutoresizingMaskIntoConstraints = false
         tableview.dataSource = self
         tableview.delegate = self
-        tableview.allowsSelection = true
-        tableview.allowsMultipleSelection = false
-        tableview.isScrollEnabled = true
         tableview.backgroundColor = .black
         tableview.tableFooterView = UIView()
         return tableview
@@ -56,21 +50,9 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        initView()
+        initBinding()
         setConstraints()
-        
-        let button = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(back))
-        navigationItem.leftBarButtonItem = button
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        title = titleStr
-        if isUpdateImage {
-            scrapePTTData(pageURLStr) { (response) in
-                self.parseHTML(response)
-            }
-        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -84,6 +66,22 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         }
     }
     
+    func initView() {
+        view.backgroundColor = .black
+        let button = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(back))
+        navigationItem.leftBarButtonItem = button
+    }
+    
+    func initBinding() {
+        viewModel.title.addObserver { [weak self] (title) in
+            self?.title = title
+        }
+        
+        viewModel.imageUrls.addObserver(fireNow: false) { (imageUrls) in
+            self.tableview.reloadData()
+        }
+    }
+    
     func setConstraints(){
         view.addSubview(tableview)
         
@@ -93,57 +91,12 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
         tableview.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
     
-    func scrapePTTData(_ pageURL: String, completion: @escaping parseHandler) {
-        guard let url = URL(string: pageURL) else {return}
-        
-        Alamofire.request(url).responseString { response in
-            if let responseValue = response.result.value {
-               completion(responseValue)
-            }
-        }
-    }
-    
-    func parseHTML(_ htmlData: String){
-        do {
-            for link in try Kanna.HTML(html: htmlData, encoding: String.Encoding.utf8).xpath("//div[@id='main-content']/a") {
-                guard let imgURL = link["href"] else {return}
-                if imgURL.hasSuffix("jpg") || imgURL.hasSuffix("png") || imgURL.hasSuffix("gif") {
-                    imageDirURLs.append(imgURL)
-                }
-                else if imgURL.contains("imgur") {
-                    scrapePTTData(imgURL) { (response) in
-                        self.parseImgurlHTML(response)
-                    }
-                }
-            }
-            reloadData()
-        }catch{}
-    }
-    
-    func parseImgurlHTML(_ htmlData: String) {
-        do {
-            for link in try Kanna.HTML(html: htmlData, encoding: String.Encoding.utf8).xpath("/html/head/link[@rel='image_src']") {
-                guard let imgurlLink = link["href"] else {return}
-                self.imageDirURLs.append(imgurlLink)
-                self.reloadData()
-            }
-        } catch{}
-    }
-    
-    func reloadData() {
-        if imageDirURLs.isEmpty {return}
-        DispatchQueue.main.async {
-            self.tableview.reloadData()
-            //self.tableview.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-        }
-    }
-    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return imageDirURLs.count
+        return viewModel.imageUrls.value.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -151,11 +104,8 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "DetailTableViewCell") as! DetailTableViewCell
-        if isUpdateImage {
-            cell.configure(imageDirURLs.count > 0 ? imageDirURLs[indexPath.row] : "")
-        }
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: DetailTableViewCell.cellIdentifier()) as! DetailTableViewCell
+        cell.configure(viewModel.imageUrls.value[indexPath.row])
         return cell
     }
     

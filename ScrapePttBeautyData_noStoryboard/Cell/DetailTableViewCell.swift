@@ -8,6 +8,8 @@
 
 import UIKit
 import SDWebImage
+import AVKit
+import AVFoundation
 
 class DetailTableViewCell: UITableViewCell {
     
@@ -38,8 +40,24 @@ class DetailTableViewCell: UITableViewCell {
         if imageUrl.hasSuffix("gif") {
             picImageView.loadGif(url: imageUrl)
         }
+        else if imageUrl.hasSuffix("mp4") {
+            guard let videoUrl = URL(string: imageUrl) else {return}
+            let player = AVPlayer(url: videoUrl)
+            let playerLayer = AVPlayerLayer(player: player)
+            playerLayer.frame = picImageView.bounds
+            contentView.layer.addSublayer(playerLayer)
+            player.play()
+            loopVideo(videoPlayer: player)
+        }
         else {
             picImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+    }
+    
+    func loopVideo(videoPlayer: AVPlayer) {
+        NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { notification in
+            videoPlayer.seek(to: kCMTimeZero)
+            videoPlayer.play()
         }
     }
     
