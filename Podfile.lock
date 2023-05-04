@@ -1,9 +1,9 @@
 PODS:
-  - Alamofire (4.6.0)
-  - Kanna (4.0.1)
-  - SDWebImage (4.3.0):
-    - SDWebImage/Core (= 4.3.0)
-  - SDWebImage/Core (4.3.0)
+  - Alamofire (5.6.4)
+  - Kanna (4.0.3)
+  - SDWebImage (5.15.6):
+    - SDWebImage/Core (= 5.15.6)
+  - SDWebImage/Core (5.15.6)
 
 DEPENDENCIES:
   - Alamofire
@@ -11,16 +11,16 @@ DEPENDENCIES:
   - SDWebImage
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - Alamofire
     - Kanna
     - SDWebImage
 
 SPEC CHECKSUMS:
-  Alamofire: f41a599bd63041760b26d393ec1069d9d7b917f4
-  Kanna: 15569a2331b79782a1753cf280c8e69e2a033654
-  SDWebImage: 6da6c8bca115addc4de8613362e1b15f66333825
+  Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
+  Kanna: 0ebbdd0e7e3308f0aafbd569e79c8cadc5eb877c
+  SDWebImage: d47d81bea8a77187896b620dc79c3c528e8906b9
 
 PODFILE CHECKSUM: 4fba30e4eea872bb467859b505c79f5ed1cef2d2
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.12.0

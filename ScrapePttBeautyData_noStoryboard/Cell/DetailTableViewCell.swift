@@ -15,7 +15,7 @@ class DetailTableViewCell: UITableViewCell {
     
     let picImageView = UIImageView()
     
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .black
         selectionStyle = .none
@@ -56,7 +56,7 @@ class DetailTableViewCell: UITableViewCell {
     
     func loopVideo(videoPlayer: AVPlayer) {
         NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { notification in
-            videoPlayer.seek(to: kCMTimeZero)
+            videoPlayer.seek(to: CMTime.zero)
             videoPlayer.play()
         }
     }

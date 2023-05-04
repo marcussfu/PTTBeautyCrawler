@@ -31,14 +31,14 @@ class PageLinksViewController: UIViewController, UITableViewDataSource, UITableV
     }()
     
     lazy var activityViewIndicator: UIActivityIndicatorView = {
-        let activityViewIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        let activityViewIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large)
         activityViewIndicator.translatesAutoresizingMaskIntoConstraints = false
         return activityViewIndicator
     }()
     
     lazy var loadMoreView: UIView = {
         let loadMoreView = UIView(frame: CGRect(x:0, y:tableview.contentSize.height,width:tableview.bounds.size.width, height:0))
-        loadMoreView.autoresizingMask = UIViewAutoresizing.flexibleWidth
+        loadMoreView.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
         loadMoreView.backgroundColor = .black
         loadMoreView.addSubview(self.activityViewIndicator)
         self.activityViewIndicator.centerXAnchor.constraint(equalTo: loadMoreView.centerXAnchor).isActive = true

@@ -42,9 +42,16 @@ class PTTBeautyPageLinkDatasViewModel {
     func scrapePTTData(_ urlString: String) {
         guard let url = URL(string: urlString) else {return}
         
-        Alamofire.request(url).responseString { response in
-            if let resultValue = response.result.value {
-                self.parseHTML(resultValue)
+        let headers: HTTPHeaders = [
+            "cookie": "over18=1;"
+        ]
+        
+        AF.request(url, headers: headers).responseString { response in
+            switch response.result {
+                case .success(let data):
+                    self.parseHTML(data)
+                case .failure(let error):
+                    print(error)
             }
         }
     }

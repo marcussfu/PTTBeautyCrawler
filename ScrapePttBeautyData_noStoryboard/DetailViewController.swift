@@ -68,7 +68,7 @@ class DetailViewController: UIViewController, UITableViewDataSource, UITableView
     
     func initView() {
         view.backgroundColor = .black
-        let button = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(back))
+        let button = UIBarButtonItem(title: "Back", style: UIBarButtonItem.Style.plain, target: self, action: #selector(back))
         navigationItem.leftBarButtonItem = button
     }
     
